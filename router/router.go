@@ -23,10 +23,9 @@ func NewRouter(uc controller.IUserController, dc controller.IDiaryController) *e
 	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
 		CookiePath:     "/",                     // Cookieのパス
 		CookieDomain:   os.Getenv("API_DOMAIN"), // Cookieのドメイン
-		CookieHTTPOnly: true,                    // CookieをHTTPのみでアクセス可能にする
+		CookieHTTPOnly: true,
+		CookieSecure:   true,
 		CookieSameSite: http.SameSiteNoneMode,
-		// CookieSameSite: http.SameSiteDefaultMode, // CookieのSameSite属性
-		// CookieMaxAge: 60,
 	}))
 
 	e.POST("/signup", uc.SignUp)
