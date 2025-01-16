@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func NewRouter(uc controller.IUserController, dc controller.IDiaryController) *echo.Echo {
+func NewRouter(uc controller.IUserController, dc controller.IDiaryController, mc controller.IMusicController) *echo.Echo {
 	e := echo.New()
 	// CORS
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -47,6 +47,8 @@ func NewRouter(uc controller.IUserController, dc controller.IDiaryController) *e
 	diaries.POST("", dc.CreateDiary)
 	diaries.PUT("/:diaryId", dc.UpdateDiary)
 	diaries.DELETE("/:diaryId", dc.DeleteDiary)
+
+	diaries.POST("/:diaryId/musics", mc.CreateMusic)
 
 	return e
 }
