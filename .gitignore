@@ -1,0 +1,51 @@
+# バイナリ/ビルド出力
+/bin/
+/dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# テストバイナリ
+*.test
+*.tmp
+
+# カバレッジファイル
+*.out
+coverage.html
+
+# 依存関係
+/vendor/
+
+# IDEとエディタ
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 環境変数
+.env
+.env.*
+!.env.example
+
+# OSジェネレート
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ログファイル
+*.log
+
+# データベース
+*.db
+*.sqlite
+
+# その他
+.tmp/
+.temp/
