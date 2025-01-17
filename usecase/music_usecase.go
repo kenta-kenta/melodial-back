@@ -6,7 +6,7 @@ import (
 )
 
 type IMusicUsecase interface {
-	CreateMusic(prompt, lyrics, title string, isAuto, instrumental int) (*model.MusicResponse, error)
+	CreateMusic(prompt, lyrics, title string, isAuto, instrumental int, diaryID uint) (*model.MusicResponse, error)
 }
 
 type MusicUsecase struct {
@@ -17,7 +17,7 @@ func NewMusicUsecase(mr repository.IMusicRepository) *MusicUsecase {
 	return &MusicUsecase{mr}
 }
 
-func (mu *MusicUsecase) CreateMusic(prompt, lyrics, title string, isAuto, instrumental int) (*model.MusicResponse, error) {
+func (mu *MusicUsecase) CreateMusic(prompt, lyrics, title string, isAuto, instrumental int, diaryID uint) (*model.MusicResponse, error) {
 	request := &model.MusicRequest{
 		IsAuto:       isAuto,
 		Prompt:       prompt,
@@ -26,5 +26,5 @@ func (mu *MusicUsecase) CreateMusic(prompt, lyrics, title string, isAuto, instru
 		Instrumental: instrumental,
 	}
 
-	return mu.mr.CreateMusic(request)
+	return mu.mr.CreateMusic(request, diaryID)
 }

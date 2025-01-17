@@ -13,5 +13,5 @@ func main() {
 	defer fmt.Println("Successfully Migrated")
 	defer db.CloseDB(dbConn)
 	// マイグレーション
-	dbConn.AutoMigrate(&model.User{}, &model.Diary{})
+	dbConn.AutoMigrate(&model.User{}, &model.Diary{}, &model.Music{})
 }
