@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/kenta-kenta/diary-music/model"
+	"github.com/kenta-kenta/diary-music/service"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -16,14 +17,16 @@ type IDiaryRepository interface {
 	UpdateDiary(diary *model.Diary, userId uint, diaryId uint) error
 	DeleteDiary(userId uint, diaryId uint) error
 	GetDiaryDates(userId uint, year, month int) ([]model.DiaryDateCount, error)
+	CreateDiaryWithMusic(diary *model.Diary, musicReq *model.MusicRequest) (*model.MusicResponse, error)
 }
 
 type diaryRepository struct {
-	db *gorm.DB
+	db           *gorm.DB
+	MusicService service.IMusicService
 }
 
 func NewDiaryRepository(db *gorm.DB) IDiaryRepository {
-	return &diaryRepository{db}
+	return &diaryRepository{db, service.NewMusicService()}
 }
 
 func (dr *diaryRepository) GetAllDiaries(query *model.PaginationQuery, userId uint) (*model.PaginationResponse, error) {
@@ -84,6 +87,44 @@ func (dr *diaryRepository) CreateDiary(diary *model.Diary) error {
 		return err
 	}
 	return nil
+}
+
+func (dr *diaryRepository) CreateDiaryWithMusic(diary *model.Diary, musicReq *model.MusicRequest) (*model.MusicResponse, error) {
+	var musicRes *model.MusicResponse
+	err := dr.db.Transaction(func(tx *gorm.DB) error {
+		// 1. 日記を保存
+		if err := tx.Create(diary).Error; err != nil {
+			return err
+		}
+
+		// 2. 音楽を生成・保存
+		musicReq.Prompt = diary.Content
+		music, err := dr.MusicService.CreateMusic(musicReq.Prompt)
+		if err != nil {
+			return err
+		}
+
+		music.DiaryID = diary.ID
+		if err := tx.Create(music).Error; err != nil {
+			return err
+		}
+
+		musicRes = &model.MusicResponse{
+			Data: []model.MusicData{
+				{
+					AudioFile: music.AudioFile,
+					ImageFile: music.ImageFile,
+					ItemUUID:  music.ItemUUID,
+					Title:     music.Title,
+					Lyric:     music.Lyrics,
+				},
+			},
+		}
+
+		return nil
+	})
+
+	return musicRes, err
 }
 
 func (dr *diaryRepository) UpdateDiary(diary *model.Diary, userId uint, diaryId uint) error {

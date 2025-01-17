@@ -92,7 +92,7 @@ func (dc *diaryController) CreateDiary(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	diary.UserId = uint(userId.(float64))
-	diaryRes, err := dc.du.CreateDiary(diary)
+	diaryRes, err := dc.du.CreateDiaryWithMusic(&diary)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
