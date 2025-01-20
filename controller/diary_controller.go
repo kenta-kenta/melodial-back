@@ -92,6 +92,22 @@ func (dc *diaryController) CreateDiary(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	diary.UserId = uint(userId.(float64))
+
+	// diaryRes := model.MusicResponse{
+	// 	Status:  0,
+	// 	Message: "",
+	// 	Data: []model.MusicData{
+	// 		{
+	// 			AudioFile: "https://files.topmediai.com/aimusic/api/e630a4ff-8dae-493e-9e72-d8a3a4cc29f2-audio.mp3",
+	// 			ImageFile: "https://files.topmediai.com/aimusic/8941427/32527de8-a833-431c-a56f-24e193bb4c65-image.png",
+	// 			ItemUUID:  "e630a4ff-8dae-493e-9e72-d8a3a4cc29f2",
+	// 			Title:     "晴れのキャンパス",
+	// 			Lyric:     "[Verse]\n今日は大学に行った\n青空が広がった\n自転車こいで\n風が気持ちいいね\n\n[Verse 2]\n教室はまぶしい笑顔\n仲間たちとジョーク交わす\nアスファルトの道\n皆で一緒に歩く\n\n[Chorus]\n晴れのキャンパスが呼んでる\n夢を追いかけよう 皆と共に\n輝く未来が待っている\n一歩一歩 強くなれる\n\n[Verse 3]\n図書館で本を読んだ\n新しい知恵を得た\nカフェで一息\nコーヒーの香り\n\n[Bridge]\n夕焼けがきれいで\n寂しさも吹き飛ぶ\n星が瞬く夜\nまた明日が楽しみ\n\n[Chorus]\n晴れのキャンパスが呼んでる\n夢を追いかけよう 皆と共に\n輝く未来が待っている\n一歩一歩 強くなれる",
+	// 			Tags:      "",
+	// 		},
+	// 	},
+	// }
+
 	diaryRes, err := dc.du.CreateDiaryWithMusic(&diary)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
