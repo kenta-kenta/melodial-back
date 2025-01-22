@@ -45,6 +45,7 @@ func (du *diaryUsecase) GetDiaryById(userId uint, diaryId uint) (model.DiaryResp
 	resDiary := model.DiaryResponse{
 		ID:        diary.ID,
 		Content:   diary.Content,
+		Music:     diary.Music[0],
 		CreatedAt: diary.CreatedAt,
 		UpdatedAt: diary.UpdatedAt,
 	}

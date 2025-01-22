@@ -39,7 +39,11 @@ func (dr *diaryRepository) GetAllDiaries(query *model.PaginationQuery, userId ui
 		return nil, err
 	}
 	// Whereメソッドを使ってデータを取得
-	if err := dr.db.Where("user_id = ?", userId).Offset(offset).Limit(query.PageSize).Order("created_at DESC").Find(&diaries).Error; err != nil {
+	if err := dr.db.Preload("Music").Where("user_id = ?", userId).
+		Offset(offset).
+		Limit(query.PageSize).
+		Order("created_at DESC").
+		Find(&diaries).Error; err != nil {
 		return nil, err
 	}
 	// 総ページ数を計算

@@ -6,7 +6,7 @@ type Diary struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	UserId    uint      `json:"user_id"`
 	Content   string    `json:"content"`
-	Music     Music     `json:"music" gorm:"foreignKey:DiaryID"` // 一対一の関係
+	Music     []Music   `json:"music" gorm:"foreignKey:DiaryID"` // 一対一の関係
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -14,6 +14,7 @@ type Diary struct {
 type DiaryResponse struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	Content   string    `json:"content" gorm:"not null"`
+	Music     Music     `json:"music" gorm:"foreignKey:DiaryID"` // 一対一の関係
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
