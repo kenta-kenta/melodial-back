@@ -15,7 +15,7 @@ type IMusicRepository interface {
 	CreateMusic(req *model.MusicRequest, diaryID uint) (*model.MusicResponse, error)
 	SaveMusic(music *model.Music) error
 	CreateMusicWithDiary(diary *model.Diary, musicReq *model.MusicRequest) (*model.MusicResponse, error)
-	GetMusicsList(page int, limit int) ([]model.Music, error)
+	GetMusicsList(page int, limit int, userId uint) ([]model.Music, error)
 }
 
 type musicRepository struct {
@@ -141,10 +141,13 @@ func (mr *musicRepository) CreateMusicWithDiary(diary *model.Diary, musicReq *mo
 	return &result, nil
 }
 
-// ページネーション
-func (mr *musicRepository) GetMusicsList(page int, limit int) ([]model.Music, error) {
+func (mr *musicRepository) GetMusicsList(page int, limit int, userId uint) ([]model.Music, error) {
 	var musics []model.Music
-	if err := mr.db.Offset((page - 1) * limit).Limit(limit).Find(&musics).Error; err != nil {
+	if err := mr.db.Where("user_id = ?", userId).
+		Order("created_at DESC").
+		Offset((page - 1) * limit).
+		Limit(limit).
+		Find(&musics).Error; err != nil {
 		return nil, err
 	}
 	return musics, nil
