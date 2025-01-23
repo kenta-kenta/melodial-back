@@ -11,6 +11,7 @@ import (
 
 type IMusicController interface {
 	CreateMusic(c echo.Context) error
+	GetMusicsList(c echo.Context) error
 }
 
 type MusicController struct {
@@ -77,4 +78,38 @@ func (mc *MusicController) CreateMusic(c echo.Context) error {
 		})
 	}
 	return c.JSON(http.StatusOK, response)
+}
+
+func (mc *MusicController) GetMusicsList(c echo.Context) error {
+	page := c.QueryParam("page")
+	limit := c.QueryParam("limit")
+
+	if page == "" {
+		page = "1"
+	}
+	if limit == "" {
+		limit = "10"
+	}
+
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid page",
+		})
+	}
+
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid limit",
+		})
+	}
+
+	musics, err := mc.mu.GetMusicsList(pageInt, limitInt)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, musics)
 }
