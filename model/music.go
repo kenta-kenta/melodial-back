@@ -27,6 +27,7 @@ type MusicData struct {
 
 type Music struct {
 	ID           uint      `json:"id" gorm:"primaryKey"`
+	UserID       uint      `json:"user_id"`
 	DiaryID      uint      `json:"diary_id" gorm:"uniqueIndex"` // 一対一の関係を保証
 	Diary        *Diary    `json:"diary" gorm:"foreignKey:DiaryID"`
 	IsAuto       int       `json:"is_auto"`
