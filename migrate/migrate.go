@@ -12,6 +12,9 @@ func main() {
 	dbConn := db.NewDB()
 	defer fmt.Println("Successfully Migrated")
 	defer db.CloseDB(dbConn)
+
+	dbConn.Migrator().DropTable(&model.User{}, &model.Diary{}, &model.Music{})
+
 	// マイグレーション
-	dbConn.AutoMigrate(&model.User{}, &model.Diary{})
+	dbConn.AutoMigrate(&model.User{}, &model.Diary{}, &model.Music{})
 }

@@ -12,6 +12,7 @@ type IDiaryUsecase interface {
 	GetAllDiaries(userId uint, page int, pageSize int) (*model.PaginationResponse, error)
 	GetDiaryById(userId uint, diaryId uint) (model.DiaryResponse, error)
 	CreateDiary(diary model.Diary) (model.DiaryResponse, error)
+	CreateDiaryWithMusic(diary *model.Diary) (*model.MusicResponse, error)
 	UpdateDiary(userId uint, diaryId uint, diary model.Diary) (model.DiaryResponse, error)
 	DeleteDiary(userId uint, diaryId uint) error
 	GetDiaryDates(userId uint, year, month string) (*model.DiaryDateCountResponse, error)
@@ -44,6 +45,7 @@ func (du *diaryUsecase) GetDiaryById(userId uint, diaryId uint) (model.DiaryResp
 	resDiary := model.DiaryResponse{
 		ID:        diary.ID,
 		Content:   diary.Content,
+		Music:     diary.Music[0],
 		CreatedAt: diary.CreatedAt,
 		UpdatedAt: diary.UpdatedAt,
 	}
@@ -112,4 +114,12 @@ func (dr *diaryUsecase) DeleteDiary(userId uint, diaryId uint) error {
 		return err
 	}
 	return nil
+}
+
+func (du *diaryUsecase) CreateDiaryWithMusic(diary *model.Diary) (*model.MusicResponse, error) {
+	musicReq := &model.MusicRequest{
+		IsAuto: 1,
+		Prompt: diary.Content,
+	}
+	return du.dr.CreateDiaryWithMusic(diary, musicReq)
 }

@@ -4,16 +4,17 @@ import "time"
 
 type Diary struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
-	Content   string    `json:"content" gorm:"not null"`
+	UserId    uint      `json:"user_id"`
+	Content   string    `json:"content"`
+	Music     []Music   `json:"music" gorm:"foreignKey:DiaryID"` // 一対一の関係
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	User      User      `json:"user" gorm:"foreignKey:UserId; constraint:OnDelete:CASCADE"`
-	UserId    uint      `json:"user_id" gorm:"not null"`
 }
 
 type DiaryResponse struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	Content   string    `json:"content" gorm:"not null"`
+	Music     Music     `json:"music" gorm:"foreignKey:DiaryID"` // 一対一の関係
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

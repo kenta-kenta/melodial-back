@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/kenta-kenta/diary-music/model"
+	"github.com/kenta-kenta/diary-music/service"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -16,14 +17,16 @@ type IDiaryRepository interface {
 	UpdateDiary(diary *model.Diary, userId uint, diaryId uint) error
 	DeleteDiary(userId uint, diaryId uint) error
 	GetDiaryDates(userId uint, year, month int) ([]model.DiaryDateCount, error)
+	CreateDiaryWithMusic(diary *model.Diary, musicReq *model.MusicRequest) (*model.MusicResponse, error)
 }
 
 type diaryRepository struct {
-	db *gorm.DB
+	db           *gorm.DB
+	MusicService service.IMusicService
 }
 
 func NewDiaryRepository(db *gorm.DB) IDiaryRepository {
-	return &diaryRepository{db}
+	return &diaryRepository{db, service.NewMusicService()}
 }
 
 func (dr *diaryRepository) GetAllDiaries(query *model.PaginationQuery, userId uint) (*model.PaginationResponse, error) {
@@ -36,7 +39,11 @@ func (dr *diaryRepository) GetAllDiaries(query *model.PaginationQuery, userId ui
 		return nil, err
 	}
 	// Whereメソッドを使ってデータを取得
-	if err := dr.db.Where("user_id = ?", userId).Offset(offset).Limit(query.PageSize).Order("created_at DESC").Find(&diaries).Error; err != nil {
+	if err := dr.db.Preload("Music").Where("user_id = ?", userId).
+		Offset(offset).
+		Limit(query.PageSize).
+		Order("created_at DESC").
+		Find(&diaries).Error; err != nil {
 		return nil, err
 	}
 	// 総ページ数を計算
@@ -86,6 +93,44 @@ func (dr *diaryRepository) CreateDiary(diary *model.Diary) error {
 	return nil
 }
 
+func (dr *diaryRepository) CreateDiaryWithMusic(diary *model.Diary, musicReq *model.MusicRequest) (*model.MusicResponse, error) {
+	var musicRes *model.MusicResponse
+	err := dr.db.Transaction(func(tx *gorm.DB) error {
+		// 1. 日記を保存
+		if err := tx.Create(diary).Error; err != nil {
+			return err
+		}
+
+		// 2. 音楽を生成・保存
+		musicReq.Prompt = diary.Content
+		music, err := dr.MusicService.CreateMusic(musicReq.Prompt)
+		if err != nil {
+			return err
+		}
+
+		music.DiaryID = diary.ID
+		if err := tx.Create(music).Error; err != nil {
+			return err
+		}
+
+		musicRes = &model.MusicResponse{
+			Data: []model.MusicData{
+				{
+					AudioFile: music.AudioFile,
+					ImageFile: music.ImageFile,
+					ItemUUID:  music.ItemUUID,
+					Title:     music.Title,
+					Lyric:     music.Lyrics,
+				},
+			},
+		}
+
+		return nil
+	})
+
+	return musicRes, err
+}
+
 func (dr *diaryRepository) UpdateDiary(diary *model.Diary, userId uint, diaryId uint) error {
 	// Returningメソッドを使って更新後のデータを取得
 	result := dr.db.Model(diary).Clauses(clause.Returning{}).Where("user_id = ? AND id = ?", userId, diaryId).Update("content", diary.Content)
@@ -99,13 +144,21 @@ func (dr *diaryRepository) UpdateDiary(diary *model.Diary, userId uint, diaryId 
 }
 
 func (dr *diaryRepository) DeleteDiary(userId uint, diaryId uint) error {
-	// Deleteメソッドを使ってデータを削除
-	result := dr.db.Where("user_id = ? AND id = ?", userId, diaryId).Delete(&model.Diary{})
-	if result.Error != nil {
-		return result.Error
-	}
-	if result.RowsAffected < 1 {
-		return fmt.Errorf("object does not exist")
-	}
-	return nil
+	return dr.db.Transaction(func(tx *gorm.DB) error {
+		// 1. まず関連するMusicレコードを削除
+		if err := tx.Where("diary_id = ?", diaryId).Delete(&model.Music{}).Error; err != nil {
+			return err
+		}
+
+		// 2. 次にDiaryレコードを削除
+		result := tx.Where("user_id = ? AND id = ?", userId, diaryId).Delete(&model.Diary{})
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected < 1 {
+			return fmt.Errorf("日記が見つかりません")
+		}
+
+		return nil
+	})
 }
