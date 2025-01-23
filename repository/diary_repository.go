@@ -144,13 +144,21 @@ func (dr *diaryRepository) UpdateDiary(diary *model.Diary, userId uint, diaryId 
 }
 
 func (dr *diaryRepository) DeleteDiary(userId uint, diaryId uint) error {
-	// Deleteメソッドを使ってデータを削除
-	result := dr.db.Where("user_id = ? AND id = ?", userId, diaryId).Delete(&model.Diary{})
-	if result.Error != nil {
-		return result.Error
-	}
-	if result.RowsAffected < 1 {
-		return fmt.Errorf("object does not exist")
-	}
-	return nil
+	return dr.db.Transaction(func(tx *gorm.DB) error {
+		// 1. まず関連するMusicレコードを削除
+		if err := tx.Where("diary_id = ?", diaryId).Delete(&model.Music{}).Error; err != nil {
+			return err
+		}
+
+		// 2. 次にDiaryレコードを削除
+		result := tx.Where("user_id = ? AND id = ?", userId, diaryId).Delete(&model.Diary{})
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected < 1 {
+			return fmt.Errorf("日記が見つかりません")
+		}
+
+		return nil
+	})
 }
