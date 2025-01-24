@@ -7,7 +7,7 @@ import (
 
 type IMusicUsecase interface {
 	CreateMusic(prompt, lyrics, title string, isAuto, instrumental int, diaryID uint) (*model.MusicResponse, error)
-	GetMusicsList(page int, limit int) ([]model.Music, error)
+	GetMusicsList(page int, limit int, userId uint) ([]model.Music, error)
 }
 
 type MusicUsecase struct {
@@ -30,10 +30,6 @@ func (mu *MusicUsecase) CreateMusic(prompt, lyrics, title string, isAuto, instru
 	return mu.mr.CreateMusic(request, diaryID)
 }
 
-func (mu *MusicUsecase) GetMusicsList(page int, limit int) ([]model.Music, error) {
-	musics, err := mu.mr.GetMusicsList(page, limit)
-	if err != nil {
-		return nil, err
-	}
-	return musics, nil
+func (mu *MusicUsecase) GetMusicsList(page int, limit int, userId uint) ([]model.Music, error) {
+	return mu.mr.GetMusicsList(page, limit, userId)
 }

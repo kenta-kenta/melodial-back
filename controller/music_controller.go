@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/kenta-kenta/diary-music/model"
 	"github.com/kenta-kenta/diary-music/usecase"
 	"github.com/labstack/echo/v4"
@@ -31,6 +32,11 @@ func (mc *MusicController) CreateMusic(c echo.Context) error {
 	}
 
 	dID, err := strconv.ParseUint(diaryID, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid diary ID",
+		})
+	}
 	// JSONリクエストをバインド
 	request := new(model.MusicRequest)
 	if err := c.Bind(request); err != nil {
@@ -81,6 +87,10 @@ func (mc *MusicController) CreateMusic(c echo.Context) error {
 }
 
 func (mc *MusicController) GetMusicsList(c echo.Context) error {
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	userId := uint(claims["user_id"].(float64))
+
 	page := c.QueryParam("page")
 	limit := c.QueryParam("limit")
 
@@ -105,7 +115,7 @@ func (mc *MusicController) GetMusicsList(c echo.Context) error {
 		})
 	}
 
-	musics, err := mc.mu.GetMusicsList(pageInt, limitInt)
+	musics, err := mc.mu.GetMusicsList(pageInt, limitInt, userId)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error": err.Error(),
