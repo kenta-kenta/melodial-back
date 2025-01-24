@@ -109,6 +109,7 @@ func (dr *diaryRepository) CreateDiaryWithMusic(diary *model.Diary, musicReq *mo
 		}
 
 		music.DiaryID = diary.ID
+		music.UserID = diary.UserId
 		if err := tx.Create(music).Error; err != nil {
 			return err
 		}
