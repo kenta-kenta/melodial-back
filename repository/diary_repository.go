@@ -49,12 +49,35 @@ func (dr *diaryRepository) GetAllDiaries(query *model.PaginationQuery, userId ui
 	// 総ページ数を計算
 	totalPages := int(math.Ceil(float64(total) / float64(query.PageSize)))
 
+	// DiaryResponseのスライスを作成
+	var diaryResponses []model.DiaryResponse
+	for _, diary := range diaries {
+		var musicData []model.MusicData
+		for _, music := range diary.Music {
+			musicData = append(musicData, model.MusicData{
+				AudioFile: music.AudioFile,
+				ImageFile: music.ImageFile,
+				ItemUUID:  music.ItemUUID,
+				Title:     music.Title,
+				Lyric:     music.Lyrics,
+				Tags:      music.Tags,
+			})
+		}
+		diaryResponses = append(diaryResponses, model.DiaryResponse{
+			ID:        diary.ID,
+			Content:   diary.Content,
+			MusicData: musicData,
+			CreatedAt: diary.CreatedAt,
+			UpdatedAt: diary.UpdatedAt,
+		})
+	}
+
 	return &model.PaginationResponse{
-		Data:       diaries,
-		TotalItems: total,
-		Page:       query.Page,
-		PageSize:   query.PageSize,
-		TotalPages: totalPages,
+		DiaryResponse: diaryResponses,
+		TotalItems:    total,
+		Page:          query.Page,
+		PageSize:      query.PageSize,
+		TotalPages:    totalPages,
 	}, nil
 }
 
