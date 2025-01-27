@@ -34,6 +34,7 @@ type Music struct {
 	Prompt       string    `json:"prompt"`
 	Lyrics       string    `json:"lyrics"`
 	Title        string    `json:"title"`
+	Tags         string    `json:"tags"`
 	Instrumental int       `json:"instrumental"`
 	AudioFile    string    `json:"audio_file"`
 	ImageFile    string    `json:"image_file"`

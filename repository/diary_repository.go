@@ -17,7 +17,7 @@ type IDiaryRepository interface {
 	UpdateDiary(diary *model.Diary, userId uint, diaryId uint) error
 	DeleteDiary(userId uint, diaryId uint) error
 	GetDiaryDates(userId uint, year, month int) ([]model.DiaryDateCount, error)
-	CreateDiaryWithMusic(diary *model.Diary, musicReq *model.MusicRequest) (*model.MusicResponse, error)
+	CreateDiaryWithMusic(diary *model.Diary, musicReq *model.MusicRequest) (*model.DiaryResponse, error)
 }
 
 type diaryRepository struct {
@@ -59,8 +59,11 @@ func (dr *diaryRepository) GetAllDiaries(query *model.PaginationQuery, userId ui
 }
 
 func (dr *diaryRepository) GetDiaryById(diary *model.Diary, userId uint, diaryId uint) error {
-	// Joinメソッドを使ってUserテーブルと結合
-	if err := dr.db.Joins("User").Where("user_id = ?", userId).First(diary, diaryId).Error; err != nil {
+	// Joinメソッドを使ってUserテーブルと結合し、Preloadメソッドを使ってMusicデータを事前にロード
+	if err := dr.db.Joins("JOIN users ON users.id = diaries.user_id").
+		Preload("Music").
+		Where("diaries.user_id = ? AND diaries.id = ?", userId, diaryId).
+		First(diary).Error; err != nil {
 		return err
 	}
 	return nil
@@ -93,8 +96,8 @@ func (dr *diaryRepository) CreateDiary(diary *model.Diary) error {
 	return nil
 }
 
-func (dr *diaryRepository) CreateDiaryWithMusic(diary *model.Diary, musicReq *model.MusicRequest) (*model.MusicResponse, error) {
-	var musicRes *model.MusicResponse
+func (dr *diaryRepository) CreateDiaryWithMusic(diary *model.Diary, musicReq *model.MusicRequest) (*model.DiaryResponse, error) {
+	var diaryRes *model.DiaryResponse
 	err := dr.db.Transaction(func(tx *gorm.DB) error {
 		// 1. 日記を保存
 		if err := tx.Create(diary).Error; err != nil {
@@ -114,22 +117,27 @@ func (dr *diaryRepository) CreateDiaryWithMusic(diary *model.Diary, musicReq *mo
 			return err
 		}
 
-		musicRes = &model.MusicResponse{
-			Data: []model.MusicData{
+		diaryRes = &model.DiaryResponse{
+			ID:      diary.ID,
+			Content: diary.Content,
+			MusicData: []model.MusicData{
 				{
 					AudioFile: music.AudioFile,
 					ImageFile: music.ImageFile,
 					ItemUUID:  music.ItemUUID,
 					Title:     music.Title,
 					Lyric:     music.Lyrics,
+					Tags:      music.Tags,
 				},
 			},
+			CreatedAt: diary.CreatedAt,
+			UpdatedAt: diary.UpdatedAt,
 		}
 
 		return nil
 	})
 
-	return musicRes, err
+	return diaryRes, err
 }
 
 func (dr *diaryRepository) UpdateDiary(diary *model.Diary, userId uint, diaryId uint) error {
