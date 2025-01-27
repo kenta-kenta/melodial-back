@@ -43,9 +43,9 @@ type PaginationQuery struct {
 }
 
 type PaginationResponse struct {
-	Data       interface{} `json:"data"`
-	TotalItems int64       `json:"total_items"`
-	Page       int         `json:"page"`
-	PageSize   int         `json:"page_size"`
-	TotalPages int         `json:"total_pages"`
+	DiaryResponse []DiaryResponse `json:"diary_response"`
+	TotalItems    int64           `json:"total_items"`
+	Page          int             `json:"page"`
+	PageSize      int             `json:"page_size"`
+	TotalPages    int             `json:"total_pages"`
 }
