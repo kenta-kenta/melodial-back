@@ -93,19 +93,30 @@ func (dc *diaryController) CreateDiary(c echo.Context) error {
 	}
 	diary.UserId = uint(userId.(float64))
 
-	// diaryRes := model.MusicResponse{
-	// 	Status:  0,
-	// 	Message: "",
-	// 	Data: []model.MusicData{
+	// createdAt, err := time.Parse(time.RFC3339, "2025-01-24T14:22:35.282635+09:00")
+	// if err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, err.Error())
+	// }
+	// updatedAt, err := time.Parse(time.RFC3339, "2025-01-24T14:22:35.282635+09:00")
+	// if err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, err.Error())
+	// }
+
+	// diaryRes := model.DiaryResponse{
+	// 	ID:      9,
+	// 	Content: "昔、飼っていた猫のことを思い出した。とても甘えん坊で、いつも私のそばにいた。一緒に遊んだり、寝たりするのが大好きだった。ある日、突然いなくなってしまい、とても悲しかった。あの時の気持ちを、今でも鮮明に覚えている。あの猫との出会いは、私にとってかけがえのない宝物だ。",
+	// 	MusicData: []model.MusicData{
 	// 		{
-	// 			AudioFile: "https://files.topmediai.com/aimusic/api/e630a4ff-8dae-493e-9e72-d8a3a4cc29f2-audio.mp3",
-	// 			ImageFile: "https://files.topmediai.com/aimusic/8941427/32527de8-a833-431c-a56f-24e193bb4c65-image.png",
-	// 			ItemUUID:  "e630a4ff-8dae-493e-9e72-d8a3a4cc29f2",
-	// 			Title:     "晴れのキャンパス",
-	// 			Lyric:     "[Verse]\n今日は大学に行った\n青空が広がった\n自転車こいで\n風が気持ちいいね\n\n[Verse 2]\n教室はまぶしい笑顔\n仲間たちとジョーク交わす\nアスファルトの道\n皆で一緒に歩く\n\n[Chorus]\n晴れのキャンパスが呼んでる\n夢を追いかけよう 皆と共に\n輝く未来が待っている\n一歩一歩 強くなれる\n\n[Verse 3]\n図書館で本を読んだ\n新しい知恵を得た\nカフェで一息\nコーヒーの香り\n\n[Bridge]\n夕焼けがきれいで\n寂しさも吹き飛ぶ\n星が瞬く夜\nまた明日が楽しみ\n\n[Chorus]\n晴れのキャンパスが呼んでる\n夢を追いかけよう 皆と共に\n輝く未来が待っている\n一歩一歩 強くなれる",
+	// 			AudioFile: "https://files.topmediai.com/aimusic/api/7f4f8313-4bc5-49b2-9ecc-751006f693f4-audio.mp3",
+	// 			ImageFile: "https://files.topmediai.com/aimusic/9441627/1d5194f1-c210-4c92-a8f5-edfbb6bcee9a-image.png",
+	// 			ItemUUID:  "7f4f8313-4bc5-49b2-9ecc-751006f693f4",
+	// 			Title:     "かけがえのない宝物",
+	// 			Lyric:     "[Verse]\n小さな足跡 追いかけていた\n甘えん坊の君 そばにいた\n一緒に遊んで 寝転んでいた\nあの日々は煌めく宝物\n\n[Verse 2]\n日の光浴びて 輝く瞳\n君の温もり 忘れられない\nどこに行ったのか 一人彷徨う\n戻ってくる日を ずっと待つよ\n\n[Chorus]\n君がいなくなった あの日の泣き声\n胸に響いて 今も忘れない\n君との出会いは かけがえのない\n宝物 心にずっと在る\n\n[Verse 3]\n朝日の中で 君と笑った\n柔らかな毛皮 触れた時の\nぬくもり覚えて 胸が痛むよ\n君の名前を 何度も呼んだ\n\n[Bridge]\n月夜の下で 夢を見てる\n君が帰る日を 待っているよ\n星空見上げて 君を感じる\nあの時の気持ち ここに在る\n\n[Chorus]\n君がいなくなった あの日の泣き声\n胸に響いて 今も忘れない\n君との出会いは かけがえのない\n宝物 心にずっと在る",
 	// 			Tags:      "",
 	// 		},
 	// 	},
+	// 	CreatedAt: createdAt,
+	// 	UpdatedAt: updatedAt,
 	// }
 
 	diaryRes, err := dc.du.CreateDiaryWithMusic(&diary)
