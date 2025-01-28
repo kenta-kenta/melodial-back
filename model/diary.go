@@ -12,11 +12,11 @@ type Diary struct {
 }
 
 type DiaryResponse struct {
-	ID        uint      `json:"id" gorm:"primaryKey"`
-	Content   string    `json:"content" gorm:"not null"`
-	Music     []Music   `json:"music" gorm:"foreignKey:DiaryID"` // 一対一の関係
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uint        `json:"id" gorm:"primaryKey"`
+	Content   string      `json:"content" gorm:"not null"`
+	MusicData []MusicData `json:"music_data" gorm:"foreignKey:DiaryID"` // 一対一の関係
+	CreatedAt time.Time   `json:"created_at"`
+	UpdatedAt time.Time   `json:"updated_at"`
 }
 
 type DiaryDate struct {
@@ -43,9 +43,9 @@ type PaginationQuery struct {
 }
 
 type PaginationResponse struct {
-	Data       interface{} `json:"data"`
-	TotalItems int64       `json:"total_items"`
-	Page       int         `json:"page"`
-	PageSize   int         `json:"page_size"`
-	TotalPages int         `json:"total_pages"`
+	DiaryResponse []DiaryResponse `json:"diary_response"`
+	TotalItems    int64           `json:"total_items"`
+	Page          int             `json:"page"`
+	PageSize      int             `json:"page_size"`
+	TotalPages    int             `json:"total_pages"`
 }

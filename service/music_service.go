@@ -67,6 +67,7 @@ func (s *musicService) CreateMusic(prompt string) (*model.Music, error) {
 		ImageFile:    result.Data[0].ImageFile,
 		ItemUUID:     result.Data[0].ItemUUID,
 		Lyrics:       result.Data[0].Lyric,
+		Tags:         result.Data[0].Tags,
 		IsAuto:       req.IsAuto,
 		Prompt:       req.Prompt,
 		Instrumental: req.Instrumental,
