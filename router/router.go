@@ -1,7 +1,6 @@
 package router
 
 import (
-	"net/http"
 	"os"
 
 	"github.com/kenta-kenta/diary-music/controller"
@@ -25,7 +24,7 @@ func NewRouter(uc controller.IUserController, dc controller.IDiaryController, mc
 		CookieDomain:   os.Getenv("API_DOMAIN"), // Cookieのドメイン
 		CookieHTTPOnly: true,
 		CookieSecure:   true,
-		CookieSameSite: http.SameSiteNoneMode,
+		// CookieSameSite: http.SameSiteNoneMode,
 	}))
 
 	e.POST("/signup", uc.SignUp)
